@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User, Transaction, Currency } from '../types';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { ArrowUpRight, Search, Plus, CreditCard, ShoppingBag, Heart, Smartphone } from 'lucide-react';
+import { FXWidget } from '../components/FXWidget';
+import { ArrowUpRight, Search, Plus, CreditCard, ShoppingBag, Heart, Smartphone, X } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 
 interface ConsumerDashboardProps {
@@ -21,21 +22,38 @@ const data = [
 ];
 
 export const ConsumerDashboard: React.FC<ConsumerDashboardProps> = ({ user, transactions }) => {
+  const [showSendMoney, setShowSendMoney] = useState(false);
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in relative">
       
+      {/* Send Money Modal / Overlay Area */}
+      {showSendMoney && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+           <div className="max-w-md w-full relative">
+              <button 
+                onClick={() => setShowSendMoney(false)}
+                className="absolute -top-12 right-0 p-2 text-white hover:text-red-400 transition-colors"
+              >
+                 <X size={24} />
+              </button>
+              <FXWidget showDecorations={false} />
+           </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-white">Welcome back, {user.name.split(' ')[0]}</h1>
-          <p className="text-neutral-400 mt-1">Support your family and shop Nigerian vendors from Canada.</p>
+          <p className="text-neutral-400 mt-1">Send money home or pay vendors in Nigeria.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="glass" size="sm">
             <ShoppingBag size={16} className="mr-2"/> Marketplace
           </Button>
-          <Button size="sm">
-            <Plus size={16} className="mr-2"/> Send CAD
+          <Button size="sm" onClick={() => setShowSendMoney(true)} className="bg-emerald-600 hover:bg-emerald-500 border-none text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+            <Plus size={16} className="mr-2"/> Send Money
           </Button>
         </div>
       </div>
@@ -44,7 +62,7 @@ export const ConsumerDashboard: React.FC<ConsumerDashboardProps> = ({ user, tran
       <div className="grid lg:grid-cols-3 gap-6">
         
         {/* Wallet Balance */}
-        <Card className="lg:col-span-2 relative overflow-hidden group">
+        <Card className="lg:col-span-2 relative overflow-hidden group border-emerald-500/20">
             <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
                 <Heart size={180} />
             </div>
@@ -77,32 +95,35 @@ export const ConsumerDashboard: React.FC<ConsumerDashboardProps> = ({ user, tran
                    <Smartphone size={14} className="text-yellow-500"/> Interac e-Transfer
                 </div>
              </div>
-             <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors border border-white/5">
-                <Plus size={20} className="text-neutral-400" />
+             <div onClick={() => setShowSendMoney(true)} className="bg-emerald-600/20 p-4 rounded-xl backdrop-blur-sm flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-600/30 transition-colors border border-emerald-500/30">
+                <Plus size={20} className="text-emerald-400 mb-1" />
+                <span className="text-xs text-emerald-200">Send Now</span>
              </div>
           </div>
         </Card>
 
-        {/* Quick Transfer / FX Snippet */}
-        <Card className="flex flex-col justify-center">
-            <h3 className="text-lg font-medium text-white mb-4">Quick Send (CAD)</h3>
-             <div className="space-y-4">
-                {['Mums House Reno', 'Lagos Logistics', 'Tunde (Cousin)'].map((name, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center text-xs font-bold text-sky-400">
-                                {name[0]}
-                            </div>
-                            <div className="text-sm">
-                                <div className="text-white group-hover:text-emerald-400 transition-colors">{name}</div>
-                                <div className="text-neutral-500 text-xs">Last sent 2 days ago</div>
-                            </div>
-                        </div>
-                        <ArrowUpRight size={16} className="text-neutral-600 group-hover:text-white" />
-                    </div>
-                ))}
-             </div>
-             <Button variant="secondary" className="mt-6 w-full text-xs">View All Contacts</Button>
+        {/* Quick Contacts / FX Teaser */}
+        <Card className="flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-medium text-white mb-4">Quick Send</h3>
+               <div className="space-y-4">
+                  {['Mums House Reno', 'Lagos Logistics', 'Tunde (Cousin)'].map((name, i) => (
+                      <div key={i} onClick={() => setShowSendMoney(true)} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+                          <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center text-xs font-bold text-sky-400">
+                                  {name[0]}
+                              </div>
+                              <div className="text-sm">
+                                  <div className="text-white group-hover:text-emerald-400 transition-colors">{name}</div>
+                                  <div className="text-neutral-500 text-xs">Last sent 2 days ago</div>
+                              </div>
+                          </div>
+                          <ArrowUpRight size={16} className="text-neutral-600 group-hover:text-white" />
+                      </div>
+                  ))}
+               </div>
+            </div>
+             <Button variant="secondary" className="mt-4 w-full text-xs">View All Contacts</Button>
         </Card>
       </div>
 
@@ -125,7 +146,7 @@ export const ConsumerDashboard: React.FC<ConsumerDashboardProps> = ({ user, tran
                             contentStyle={{ backgroundColor: '#171717', border: '1px solid #333', borderRadius: '8px' }}
                             itemStyle={{ color: '#fff' }}
                         />
-                        <Bar dataKey="amt" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={40} />
+                        <Bar dataKey="amt" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>

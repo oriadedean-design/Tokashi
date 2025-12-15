@@ -4,7 +4,12 @@ import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Currency } from '../types';
 
-export const FXWidget: React.FC = () => {
+interface FXWidgetProps {
+  className?: string;
+  showDecorations?: boolean;
+}
+
+export const FXWidget: React.FC<FXWidgetProps> = ({ className = '', showDecorations = true }) => {
   const [amount, setAmount] = useState<number>(1000);
   const [fromCurrency, setFromCurrency] = useState<Currency>(Currency.CAD);
   const [toCurrency, setToCurrency] = useState<Currency>(Currency.NGN);
@@ -53,10 +58,12 @@ export const FXWidget: React.FC = () => {
   const fee = 0; // Promotional Zero Fee
 
   return (
-    <Card className="relative overflow-hidden border-t border-white/20 shadow-2xl shadow-sky-900/20">
-      <div className="absolute top-0 right-0 p-4 opacity-20">
-        <Zap size={120} className="text-red-500" />
-      </div>
+    <Card className={`relative overflow-hidden border-t border-white/20 shadow-2xl shadow-sky-900/20 ${className}`}>
+      {showDecorations && (
+        <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
+          <Zap size={120} className="text-red-500" />
+        </div>
+      )}
 
       <div className="relative z-10 space-y-6">
         <div className="flex justify-between items-center mb-2">
